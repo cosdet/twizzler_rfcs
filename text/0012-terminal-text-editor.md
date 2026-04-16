@@ -91,6 +91,61 @@ I believe that `femto` is the best in the space of possible designs due to its s
 
 Going with this simpler option. however, we do leave ourselves with more work in the future when trying to upgrade the text editor to include more quality of life features such as syntax highlighting, config customization, and more keyboard shortcuts.
 
+<details>
+    <summary>Currently `femto` only requires the following features from `libc`:</summary>
+
+    Four functions:
+    * `ioctl`
+    * `tcgetattr`
+    * `tcsetattr`
+    * `isatty`
+
+    One struct:
+    * `termios`
+
+    Three constants:
+    * `STDOUT_FILENO`
+    * `TIOCGWINSZ`
+    * `TCSANOW`
+
+    One type:
+    * `c_ushort`
+</details>
+
+<details>
+    <summary>`kibi` requires the following `libc` features:</summary>
+
+    Six functions:
+    * `ioctl`
+    * `tcgetattr`
+    * `tcsetattr`
+    * `sigemptyset`
+    * `sigaction`
+    * `cfmakeraw`
+
+    Three structs:
+    * `termios`
+    * `sigaction`
+    * `winsize`
+
+    Nine constants:
+    * `STDOUT_FILENO`
+    * `STDIN_FILENO`
+    * `TIOCGWINSZ`
+    * `TCSANOW`
+    * `TCSADRAIN`
+    * `SA_SIGINFO`
+    * `SIGWINCH` 
+    * `VMIN`
+    * `VTIME`
+
+    Four types:
+    * `c_int`
+    * `c_void`
+    * `sighandler_t`
+    * `siginfo_t`
+</details>
+
 # Prior art
 [prior-art]: #prior-art
 
@@ -111,12 +166,32 @@ adaptation from other operating systems.
 Note that while precedent set by other operating systems is some
 motivation, it does not on its own motivate an RFC. -->
 
+Command line text editors exist in almost every major operating system and are generally considered a positive addition.
+
+In another experimental operating system, [Redox OS](https://github.com/redox-os/redox), they took the route of creating a clean-slate editor designed specifically for their OS, inspired by `vim`, called [Sodium](https://github.com/redox-os/sodium).
+
+Something that seems to be exclusive to Twizzler, however, is an editor that deals with persistent objects rather than files. This could lead to some differences with how files are opened and edited. File paths would have to be substituted with object IDs and with persistent objects instead of files, saving might become unnescessary, which may cause issues when dealing with the expectation of being able to discard unsaved changes or undo changes unless a history log is taken into account.
+
 # Unresolved questions
 [unresolved-questions]: #unresolved-questions
 
 <!-- - What parts of the design do you expect to resolve through the RFC process before this gets merged?
 - What parts of the design do you expect to resolve through the implementation of this feature before stabilization?
 - What related issues do you consider out of scope for this RFC that could be addressed in the future independently of the solution that comes out of this RFC? -->
+
+By implementing and writing this RFC, I expect to answer the following questions that are currently unresolved:
+* How are Twizzler syscalls implemented?
+* How are Twizzler syscalls organized in the repository?
+* How do I ensure libc calls are being correctly translated through mlibc and understood by the operating system?
+* How do I manipulate the Pseudo Terminal (PTY) in the current Twizzler build?
+* How do the different features of command line text editors work?
+
+Issues that I would consider out of scope for this RFC:
+* Implenting a compiler to compile code written in a command line text editor
+* Extensions like `rust-analyzer` that highlight errors or warnings in written code objects
+* Being able to transfer written text objects outside the operating system
+* A GUI interface for the text editor
+
 
 # Future possibilities
 [future-possibilities]: #future-possibilities
@@ -138,3 +213,13 @@ Note that having something written down in the future-possibilities section
 is not a reason to accept the current or a future RFC; such notes should be
 in the section on motivation or rationale in this or subsequent RFCs.
 The section merely provides additional information. -->
+
+This feature will hopefully be the start of more terminal manipulation magic. Many utility functions, for example, `htop` also take over the terminal to show properties of the machine running the OS, so by beginning to implement these libc syscalls in Twizzler and understand how Twizzler manages the terminal, we allow for more porting capabilities.
+
+Eventually, the ideas I listed in the "out of scope" section of my unresolved questions section, should also be added, so I refer you to that section for inspiration on where to take this feature if implemented.
+
+Week 6:
+Be able to open `femto` in Twizzler and open and write a text file/object.
+
+Week 10:
+Look into fleshing out `femto` or implementing `kibi`, see what more advanced editors need to work, patch one of these editors to utilize Twizzler's unique way of storing objects.
